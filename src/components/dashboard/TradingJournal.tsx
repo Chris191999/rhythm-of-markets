@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +9,31 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trade } from '@/utils/types';
-import { trades as mockTrades } from '@/utils/mockData';
 import { useToast } from '@/hooks/use-toast';
+import TradeScreenshotAnalyzer from '../trading/TradeScreenshotAnalyzer';
+import { useTrades } from '@/services/tradeDataService';
+import { parseCurrency } from '@/utils/imageProcessing';
+
+interface FormData {
+  date: string;
+  symbol: string;
+  direction: 'Long' | 'Short';
+  entryPrice: string;
+  exitPrice: string;
+  quantity: string;
+  setup: string;
+  timeframe: string;
+  marketCondition: string;
+  orderFlow: string;
+  smartMoney: boolean;
+  riskRewardRatio: string;
+  riskPercentage: string;
+  notes: string;
+  confidence: number;
+  stress: number;
+  discipline: number;
+  patience: number;
+}
 
 const TradingJournal = () => {
   const [newTagValue, setNewTagValue] = useState('');
@@ -20,14 +42,41 @@ const TradingJournal = () => {
   const [entryReasons, setEntryReasons] = useState<string[]>([]);
   const [exitReasons, setExitReasons] = useState<string[]>([]);
   const [smartMoney, setSmartMoney] = useState<boolean>(false);
+  const [confidence, setConfidence] = useState<number>(7);
+  const [stress, setStress] = useState<number>(4);
+  const [discipline, setDiscipline] = useState<number>(8);
+  const [patience, setPatience] = useState<number>(6);
   const { toast } = useToast();
+  const { addTrade } = useTrades();
+  
+  const [formData, setFormData] = useState<FormData>({
+    date: new Date().toISOString().split('T')[0],
+    symbol: '',
+    direction: 'Long',
+    entryPrice: '',
+    exitPrice: '',
+    quantity: '1',
+    setup: '',
+    timeframe: '1h',
+    marketCondition: 'Trending',
+    orderFlow: 'Neutral',
+    smartMoney: false,
+    riskRewardRatio: '',
+    riskPercentage: '',
+    notes: '',
+    confidence: 7,
+    stress: 4,
+    discipline: 8,
+    patience: 6,
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Trade Saved",
-      description: "Your trade has been added to your journal.",
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
 
   const handleAddTag = (e: React.KeyboardEvent, type: 'tag' | 'ict' | 'entry' | 'exit') => {
@@ -78,61 +127,230 @@ const TradingJournal = () => {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const entryPrice = parseCurrency(formData.entryPrice);
+      const exitPrice = parseCurrency(formData.exitPrice);
+      const quantity = parseInt(formData.quantity) || 1;
+      
+      // Calculate P&L
+      const profitLoss = (exitPrice - entryPrice) * quantity;
+      const profitLossPercentage = entryPrice > 0 
+        ? ((exitPrice - entryPrice) / entryPrice) * 100
+        : 0;
+      
+      const newTrade: Partial<Trade> = {
+        date: formData.date,
+        symbol: formData.symbol,
+        direction: formData.direction,
+        entryPrice: entryPrice,
+        exitPrice: exitPrice,
+        quantity: quantity,
+        profitLoss: profitLoss,
+        profitLossPercentage: profitLossPercentage,
+        setup: formData.setup,
+        timeframe: formData.timeframe,
+        duration: '', // Could calculate from entry/exit timestamps if available
+        notes: formData.notes,
+        emotions: {
+          before: confidence,
+          during: stress, // Repurposing for simplicity
+          after: discipline, // Repurposing for simplicity
+        },
+        psychology: {
+          confidence: confidence,
+          stress: stress,
+          discipline: discipline,
+          patience: patience,
+        },
+        tags: tags,
+        marketCondition: formData.marketCondition as any,
+        orderFlow: formData.orderFlow as any,
+        ictConcepts: ictConcepts,
+        entryReason: entryReasons,
+        exitReason: exitReasons,
+        riskRewardRatio: parseFloat(formData.riskRewardRatio) || 0,
+        riskPercentage: parseFloat(formData.riskPercentage) || 0,
+        smartMoney: smartMoney,
+      };
+      
+      addTrade(newTrade);
+      
+      toast({
+        title: "Trade Saved",
+        description: "Your trade has been added to your journal.",
+      });
+      
+      // Reset form
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        symbol: '',
+        direction: 'Long',
+        entryPrice: '',
+        exitPrice: '',
+        quantity: '1',
+        setup: '',
+        timeframe: '1h',
+        marketCondition: 'Trending',
+        orderFlow: 'Neutral',
+        smartMoney: false,
+        riskRewardRatio: '',
+        riskPercentage: '',
+        notes: '',
+        confidence: 7,
+        stress: 4,
+        discipline: 8,
+        patience: 6,
+      });
+      setTags([]);
+      setIctConcepts([]);
+      setEntryReasons([]);
+      setExitReasons([]);
+      setSmartMoney(false);
+    } catch (error) {
+      console.error("Error saving trade:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem saving your trade.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTradeDataExtracted = (data: any) => {
+    // Update form with extracted data
+    setFormData(prev => ({
+      ...prev,
+      symbol: data.symbol || prev.symbol,
+      entryPrice: data.buyPrice || prev.entryPrice,
+      exitPrice: data.sellPrice || prev.exitPrice,
+      quantity: data.quantity || prev.quantity,
+      riskRewardRatio: data.riskRewardRatio || prev.riskRewardRatio,
+    }));
+
+    // Add extracted tags if any
+    if (data.target) {
+      setTags(prev => 
+        prev.includes("Target: " + data.target) 
+          ? prev 
+          : [...prev, "Target: " + data.target]
+      );
+    }
+    
+    if (data.stopLoss) {
+      setTags(prev => 
+        prev.includes("SL: " + data.stopLoss) 
+          ? prev 
+          : [...prev, "SL: " + data.stopLoss]
+      );
+    }
+
+    toast({
+      title: "Data Applied",
+      description: "Trading data has been applied to the form.",
+    });
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-xl">New Trade Entry</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-6">
+          <TradeScreenshotAnalyzer onDataExtracted={handleTradeDataExtracted} />
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
-              <Input id="date" type="date" required />
+              <Input 
+                id="date" 
+                type="date" 
+                value={formData.date} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="symbol">Symbol</Label>
-              <Input id="symbol" placeholder="AAPL" required />
+              <Input 
+                id="symbol" 
+                placeholder="AAPL" 
+                value={formData.symbol} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="direction">Direction</Label>
-              <Select>
+              <Select onValueChange={(value) => handleSelectChange('direction', value)}>
                 <SelectTrigger id="direction">
-                  <SelectValue placeholder="Select" />
+                  <SelectValue placeholder={formData.direction} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="long">Long</SelectItem>
-                  <SelectItem value="short">Short</SelectItem>
+                  <SelectItem value="Long">Long</SelectItem>
+                  <SelectItem value="Short">Short</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="entryPrice">Entry Price</Label>
-              <Input id="entryPrice" type="number" step="0.01" placeholder="0.00" required />
+              <Input 
+                id="entryPrice" 
+                type="text" 
+                placeholder="0.00" 
+                value={formData.entryPrice} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="exitPrice">Exit Price</Label>
-              <Input id="exitPrice" type="number" step="0.01" placeholder="0.00" required />
+              <Input 
+                id="exitPrice" 
+                type="text" 
+                placeholder="0.00" 
+                value={formData.exitPrice} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity</Label>
-              <Input id="quantity" type="number" step="1" placeholder="0" required />
+              <Input 
+                id="quantity" 
+                type="number" 
+                step="1" 
+                placeholder="0" 
+                value={formData.quantity} 
+                onChange={handleChange} 
+                required 
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="setup">Setup</Label>
-              <Input id="setup" placeholder="Breakout" />
+              <Input 
+                id="setup" 
+                placeholder="Breakout" 
+                value={formData.setup} 
+                onChange={handleChange} 
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="timeframe">Timeframe</Label>
-              <Select>
+              <Select onValueChange={(value) => handleSelectChange('timeframe', value)}>
                 <SelectTrigger id="timeframe">
-                  <SelectValue placeholder="Select" />
+                  <SelectValue placeholder={formData.timeframe} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1m">1m</SelectItem>
@@ -191,11 +409,25 @@ const TradingJournal = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="riskRewardRatio">Risk/Reward Ratio</Label>
-              <Input id="riskRewardRatio" type="number" step="0.1" placeholder="2.0" />
+              <Input 
+                id="riskRewardRatio" 
+                type="number" 
+                step="0.1" 
+                placeholder="2.0" 
+                value={formData.riskRewardRatio} 
+                onChange={handleChange} 
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="riskPercentage">Risk Percentage</Label>
-              <Input id="riskPercentage" type="number" step="0.1" placeholder="1.0" />
+              <Input 
+                id="riskPercentage" 
+                type="number" 
+                step="0.1" 
+                placeholder="1.0" 
+                value={formData.riskPercentage} 
+                onChange={handleChange}
+              />
             </div>
           </div>
 
@@ -281,17 +513,29 @@ const TradingJournal = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label>Confidence (1-10)</Label>
-                    <span className="text-sm text-muted-foreground">7</span>
+                    <span className="text-sm text-muted-foreground">{confidence}</span>
                   </div>
-                  <Slider defaultValue={[7]} max={10} step={1} className="w-full" />
+                  <Slider 
+                    value={[confidence]} 
+                    max={10} 
+                    step={1} 
+                    className="w-full"
+                    onValueChange={([val]) => setConfidence(val)} 
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label>Stress Level (1-10)</Label>
-                    <span className="text-sm text-muted-foreground">4</span>
+                    <span className="text-sm text-muted-foreground">{stress}</span>
                   </div>
-                  <Slider defaultValue={[4]} max={10} step={1} className="w-full" />
+                  <Slider 
+                    value={[stress]} 
+                    max={10} 
+                    step={1} 
+                    className="w-full"
+                    onValueChange={([val]) => setStress(val)}
+                  />
                 </div>
               </div>
               
@@ -299,17 +543,29 @@ const TradingJournal = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label>Discipline (1-10)</Label>
-                    <span className="text-sm text-muted-foreground">8</span>
+                    <span className="text-sm text-muted-foreground">{discipline}</span>
                   </div>
-                  <Slider defaultValue={[8]} max={10} step={1} className="w-full" />
+                  <Slider 
+                    value={[discipline]} 
+                    max={10} 
+                    step={1} 
+                    className="w-full"
+                    onValueChange={([val]) => setDiscipline(val)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label>Patience (1-10)</Label>
-                    <span className="text-sm text-muted-foreground">6</span>
+                    <span className="text-sm text-muted-foreground">{patience}</span>
                   </div>
-                  <Slider defaultValue={[6]} max={10} step={1} className="w-full" />
+                  <Slider 
+                    value={[patience]} 
+                    max={10} 
+                    step={1} 
+                    className="w-full"
+                    onValueChange={([val]) => setPatience(val)}
+                  />
                 </div>
               </div>
             </div>
