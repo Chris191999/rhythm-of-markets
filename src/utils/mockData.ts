@@ -1,5 +1,5 @@
 
-import { Trade, PerformanceMetric, ChartData, EmotionData, PsychologyMetric } from './types';
+import { Trade, PerformanceMetric, ChartData, EmotionData, PsychologyMetric, AdvancedMetrics, AiAnalysis } from './types';
 
 // Mock trades
 export const trades: Trade[] = [
@@ -28,7 +28,15 @@ export const trades: Trade[] = [
       discipline: 7,
       patience: 8
     },
-    tags: ['Earnings', 'Momentum', 'Breakout']
+    tags: ['Earnings', 'Momentum', 'Breakout'],
+    marketCondition: 'Trending',
+    orderFlow: 'Bullish',
+    ictConcepts: ['Fair Value Gap', 'Liquidity Grab'],
+    entryReason: ['Break of structure', 'Volume confirmation'],
+    exitReason: ['Target reached', 'Momentum slowing'],
+    riskRewardRatio: 2.5,
+    riskPercentage: 0.8,
+    smartMoney: true
   },
   {
     id: '2',
@@ -55,7 +63,15 @@ export const trades: Trade[] = [
       discipline: 8,
       patience: 5
     },
-    tags: ['Support', 'Failed Setup']
+    tags: ['Support', 'Failed Setup'],
+    marketCondition: 'Ranging',
+    orderFlow: 'Neutral',
+    ictConcepts: ['Breaker Block', 'Optimal Trade Entry'],
+    entryReason: ['Support retest', 'Previous swing low'],
+    exitReason: ['Stop loss hit', 'Support broken'],
+    riskRewardRatio: 3.0,
+    riskPercentage: 1.0,
+    smartMoney: false
   },
   {
     id: '3',
@@ -82,7 +98,15 @@ export const trades: Trade[] = [
       discipline: 8,
       patience: 7
     },
-    tags: ['Reversal', 'Overbought', 'Technical']
+    tags: ['Reversal', 'Overbought', 'Technical'],
+    marketCondition: 'Volatile',
+    orderFlow: 'Bearish',
+    ictConcepts: ['Equal Highs', 'Liquidity Sweep'],
+    entryReason: ['Price rejection', 'Bearish order block'],
+    exitReason: ['Target reached', 'Support level'],
+    riskRewardRatio: 2.2,
+    riskPercentage: 1.2,
+    smartMoney: true
   },
   {
     id: '4',
@@ -109,7 +133,15 @@ export const trades: Trade[] = [
       discipline: 7,
       patience: 7
     },
-    tags: ['MA Crossover', 'Trend Following']
+    tags: ['MA Crossover', 'Trend Following'],
+    marketCondition: 'Trending',
+    orderFlow: 'Bullish',
+    ictConcepts: ['Order Block', 'Smart Money Concept'],
+    entryReason: ['MA crossover', 'Bullish candle pattern'],
+    exitReason: ['Target reached', 'Resistance approach'],
+    riskRewardRatio: 2.8,
+    riskPercentage: 0.7,
+    smartMoney: true
   },
   {
     id: '5',
@@ -136,7 +168,15 @@ export const trades: Trade[] = [
       discipline: 4,
       patience: 3
     },
-    tags: ['Resistance', 'Failed Setup', 'News']
+    tags: ['Resistance', 'Failed Setup', 'News'],
+    marketCondition: 'Volatile',
+    orderFlow: 'Bullish',
+    ictConcepts: ['Premium/Discount', 'Market Structure'],
+    entryReason: ['Resistance test', 'Bearish divergence'],
+    exitReason: ['Stop loss hit', 'Unexpected momentum'],
+    riskRewardRatio: 2.0,
+    riskPercentage: 1.5,
+    smartMoney: false
   }
 ];
 
@@ -208,3 +248,73 @@ export const psychologyMetrics: PsychologyMetric[] = [
   { label: 'Patience', value: 6.8, category: 'neutral' },
   { label: 'Overconfidence', value: 5.1, category: 'neutral' }
 ];
+
+// Advanced metrics
+export const advancedMetrics: AdvancedMetrics = {
+  performanceByTimeframe: [
+    { timeframe: '1H', winRate: 68, profitLoss: 28.5, trades: 12 },
+    { timeframe: '4H', winRate: 62, profitLoss: 42.3, trades: 8 },
+    { timeframe: '1D', winRate: 55, profitLoss: 35.8, trades: 6 },
+    { timeframe: '1W', winRate: 75, profitLoss: 22.4, trades: 4 }
+  ],
+  setupPerformance: [
+    { setup: 'Breakout', winRate: 64, avgReturn: 1.8, trades: 14 },
+    { setup: 'Fair Value Gap', winRate: 72, avgReturn: 2.1, trades: 9 },
+    { setup: 'Liquidity Grab', winRate: 68, avgReturn: 2.8, trades: 11 },
+    { setup: 'Order Block', winRate: 58, avgReturn: 1.6, trades: 7 }
+  ],
+  psychologyCorrelations: [
+    { factor: 'Confidence', profitCorrelation: 0.65, description: 'Higher confidence correlates with better trade outcomes.' },
+    { factor: 'Stress', profitCorrelation: -0.72, description: 'Lower stress levels strongly correlate with profitable trades.' },
+    { factor: 'Discipline', profitCorrelation: 0.81, description: 'Strong positive correlation between discipline and profitability.' },
+    { factor: 'Patience', profitCorrelation: 0.58, description: 'More patient trading approach tends to yield better results.' }
+  ],
+  smartMoneyAlignment: {
+    aligned: 65,
+    notAligned: 28,
+    undetermined: 7
+  },
+  marketConditionPerformance: [
+    { condition: 'Trending', winRate: 65, avgReturn: 2.2, trades: 18 },
+    { condition: 'Ranging', winRate: 58, avgReturn: 1.4, trades: 12 },
+    { condition: 'Volatile', winRate: 42, avgReturn: 0.8, trades: 9 },
+    { condition: 'Calm', winRate: 70, avgReturn: 1.6, trades: 7 }
+  ]
+};
+
+// AI Analysis
+export const aiAnalysis: AiAnalysis = {
+  tradingPatterns: [
+    "You consistently perform better in trending markets than in volatile or ranging conditions.",
+    "Your most profitable trades occur when using ICT concepts like fair value gaps and order blocks.",
+    "You tend to exit profitable trades too early, leaving potential gains on the table.",
+    "Your win rate increases significantly when you align with smart money flow.",
+    "Risk management is most disciplined during morning trading sessions."
+  ],
+  psychologicalInsights: [
+    "Lower stress levels correlate strongly with higher profitability in your trading.",
+    "You exhibit higher patience during winning streaks but diminished patience after losses.",
+    "Confidence scores show optimal performance in the middle range (6-8), with overconfidence leading to mistakes.",
+    "Your emotional control is strongest during longer timeframe trades (4H and above)."
+  ],
+  improvementAreas: [
+    "Improve trade management during volatile market conditions",
+    "Develop more precise exit strategies based on market structure",
+    "Work on reducing stress levels during active trades",
+    "Strengthen discipline in adhering to trading plans during drawdowns"
+  ],
+  strengths: [
+    "Excellent at identifying smart money concepts",
+    "Strong risk management on winning trades",
+    "Consistent application of ICT methodologies",
+    "Good pattern recognition in trending markets"
+  ],
+  recommendations: [
+    "Focus on trades that align with institutional order flow - your win rate increases by 43% in these scenarios.",
+    "Consider extending your average trade duration by 20-30% to capture more of the move.",
+    "Implement a 5-minute mindfulness practice before trading sessions to reduce stress levels.",
+    "Prioritize Fair Value Gap and Liquidity Grab setups, where your performance is strongest.",
+    "Avoid trading during highly volatile market conditions where your win rate drops below 45%."
+  ],
+  confidenceScore: 85
+};

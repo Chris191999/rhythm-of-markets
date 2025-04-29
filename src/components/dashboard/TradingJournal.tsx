@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Trade } from '@/utils/types';
 import { trades as mockTrades } from '@/utils/mockData';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +16,10 @@ import { useToast } from '@/hooks/use-toast';
 const TradingJournal = () => {
   const [newTagValue, setNewTagValue] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [ictConcepts, setIctConcepts] = useState<string[]>([]);
+  const [entryReasons, setEntryReasons] = useState<string[]>([]);
+  const [exitReasons, setExitReasons] = useState<string[]>([]);
+  const [smartMoney, setSmartMoney] = useState<boolean>(false);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,18 +30,52 @@ const TradingJournal = () => {
     });
   };
 
-  const handleAddTag = (e: React.KeyboardEvent) => {
+  const handleAddTag = (e: React.KeyboardEvent, type: 'tag' | 'ict' | 'entry' | 'exit') => {
     if (e.key === 'Enter' && newTagValue.trim() !== '') {
       e.preventDefault();
-      if (!tags.includes(newTagValue.trim())) {
-        setTags([...tags, newTagValue.trim()]);
+      
+      switch(type) {
+        case 'tag':
+          if (!tags.includes(newTagValue.trim())) {
+            setTags([...tags, newTagValue.trim()]);
+          }
+          break;
+        case 'ict':
+          if (!ictConcepts.includes(newTagValue.trim())) {
+            setIctConcepts([...ictConcepts, newTagValue.trim()]);
+          }
+          break;
+        case 'entry':
+          if (!entryReasons.includes(newTagValue.trim())) {
+            setEntryReasons([...entryReasons, newTagValue.trim()]);
+          }
+          break;
+        case 'exit':
+          if (!exitReasons.includes(newTagValue.trim())) {
+            setExitReasons([...exitReasons, newTagValue.trim()]);
+          }
+          break;
       }
+      
       setNewTagValue('');
     }
   };
 
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+  const handleRemoveItem = (item: string, type: 'tag' | 'ict' | 'entry' | 'exit') => {
+    switch(type) {
+      case 'tag':
+        setTags(tags.filter(tag => tag !== item));
+        break;
+      case 'ict':
+        setIctConcepts(ictConcepts.filter(concept => concept !== item));
+        break;
+      case 'entry':
+        setEntryReasons(entryReasons.filter(reason => reason !== item));
+        break;
+      case 'exit':
+        setExitReasons(exitReasons.filter(reason => reason !== item));
+        break;
+    }
   };
 
   return (
@@ -108,6 +147,110 @@ const TradingJournal = () => {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="marketCondition">Market Condition</Label>
+              <Select>
+                <SelectTrigger id="marketCondition">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="trending">Trending</SelectItem>
+                  <SelectItem value="ranging">Ranging</SelectItem>
+                  <SelectItem value="volatile">Volatile</SelectItem>
+                  <SelectItem value="calm">Calm</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orderFlow">Order Flow</Label>
+              <Select>
+                <SelectTrigger id="orderFlow">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bullish">Bullish</SelectItem>
+                  <SelectItem value="bearish">Bearish</SelectItem>
+                  <SelectItem value="neutral">Neutral</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-start space-x-2 pt-3">
+                <Checkbox id="smartMoney" checked={smartMoney} onCheckedChange={(checked) => setSmartMoney(checked as boolean)} />
+                <label
+                  htmlFor="smartMoney"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Smart Money Aligned?
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="riskRewardRatio">Risk/Reward Ratio</Label>
+              <Input id="riskRewardRatio" type="number" step="0.1" placeholder="2.0" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="riskPercentage">Risk Percentage</Label>
+              <Input id="riskPercentage" type="number" step="0.1" placeholder="1.0" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>ICT Concepts Applied</Label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {ictConcepts.map((concept) => (
+                <Badge key={concept} variant="secondary" className="cursor-pointer bg-[hsl(var(--ict-concept))]" onClick={() => handleRemoveItem(concept, 'ict')}>
+                  {concept} ×
+                </Badge>
+              ))}
+            </div>
+            <Input
+              value={newTagValue}
+              onChange={(e) => setNewTagValue(e.target.value)}
+              onKeyDown={(e) => handleAddTag(e, 'ict')}
+              placeholder="Add ICT concept and press Enter"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Entry Reasons</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {entryReasons.map((reason) => (
+                  <Badge key={reason} variant="outline" className="cursor-pointer" onClick={() => handleRemoveItem(reason, 'entry')}>
+                    {reason} ×
+                  </Badge>
+                ))}
+              </div>
+              <Input
+                value={newTagValue}
+                onChange={(e) => setNewTagValue(e.target.value)}
+                onKeyDown={(e) => handleAddTag(e, 'entry')}
+                placeholder="Add entry reason and press Enter"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Exit Reasons</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {exitReasons.map((reason) => (
+                  <Badge key={reason} variant="outline" className="cursor-pointer" onClick={() => handleRemoveItem(reason, 'exit')}>
+                    {reason} ×
+                  </Badge>
+                ))}
+              </div>
+              <Input
+                value={newTagValue}
+                onChange={(e) => setNewTagValue(e.target.value)}
+                onKeyDown={(e) => handleAddTag(e, 'exit')}
+                placeholder="Add exit reason and press Enter"
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea id="notes" placeholder="Trade analysis and observations..." />
@@ -117,7 +260,7 @@ const TradingJournal = () => {
             <Label>Trade Tags</Label>
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map(tag => (
-                <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
+                <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => handleRemoveItem(tag, 'tag')}>
                   {tag} ×
                 </Badge>
               ))}
@@ -125,7 +268,7 @@ const TradingJournal = () => {
             <Input
               value={newTagValue}
               onChange={(e) => setNewTagValue(e.target.value)}
-              onKeyDown={handleAddTag}
+              onKeyDown={(e) => handleAddTag(e, 'tag')}
               placeholder="Add tag and press Enter"
             />
           </div>

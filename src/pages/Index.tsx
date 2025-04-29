@@ -6,6 +6,8 @@ import PerformanceMetrics from '@/components/dashboard/PerformanceMetrics';
 import TradingJournal from '@/components/dashboard/TradingJournal';
 import TradeHistory from '@/components/dashboard/TradeHistory';
 import PsychologicalInsights from '@/components/dashboard/PsychologicalInsights';
+import AITradingAnalysis from '@/components/dashboard/AITradingAnalysis';
+import AdvancedPerformanceMetrics from '@/components/dashboard/AdvancedPerformanceMetrics';
 
 const Index = () => {
   return (
@@ -17,6 +19,11 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <PerformanceMetrics />
             <PsychologicalInsights />
+          </div>
+          
+          <div className="grid grid-cols-1 gap-6">
+            <AdvancedPerformanceMetrics />
+            <AITradingAnalysis />
           </div>
           
           <Tabs defaultValue="history">

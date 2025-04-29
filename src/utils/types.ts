@@ -26,6 +26,15 @@ export interface Trade {
   };
   screenshots?: string[];
   tags: string[];
+  // Advanced metrics
+  marketCondition: 'Trending' | 'Ranging' | 'Volatile' | 'Calm';
+  orderFlow: 'Bullish' | 'Bearish' | 'Neutral';
+  ictConcepts: string[]; // ICT concepts applied
+  entryReason: string[];
+  exitReason: string[];
+  riskRewardRatio: number;
+  riskPercentage: number;
+  smartMoney: boolean; // Was position aligned with smart money?
 }
 
 export interface PerformanceMetric {
@@ -51,4 +60,44 @@ export interface PsychologyMetric {
   label: string;
   value: number;
   category: 'strength' | 'weakness' | 'neutral';
+}
+
+export interface AdvancedMetrics {
+  performanceByTimeframe: {
+    timeframe: string;
+    winRate: number;
+    profitLoss: number;
+    trades: number;
+  }[];
+  setupPerformance: {
+    setup: string;
+    winRate: number;
+    avgReturn: number;
+    trades: number;
+  }[];
+  psychologyCorrelations: {
+    factor: string;
+    profitCorrelation: number; // -1 to 1
+    description: string;
+  }[];
+  smartMoneyAlignment: {
+    aligned: number; // percentage
+    notAligned: number; // percentage
+    undetermined: number; // percentage
+  };
+  marketConditionPerformance: {
+    condition: string;
+    winRate: number;
+    avgReturn: number;
+    trades: number;
+  }[];
+}
+
+export interface AiAnalysis {
+  tradingPatterns: string[];
+  psychologicalInsights: string[];
+  improvementAreas: string[];
+  strengths: string[];
+  recommendations: string[];
+  confidenceScore: number; // 0-100
 }

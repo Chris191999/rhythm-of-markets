@@ -43,6 +43,14 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 47% 15%;
     --sidebar-ring: 262 83% 58%;
+
+    --trading-win: 142 76% 36%;
+    --trading-loss: 0 84% 60%;
+    --trading-neutral: 245 58% 51%;
+
+    --smart-money: 280 87% 65%;
+    --retail-money: 29 85% 57%;
+    --ict-concept: 200 100% 60%;
   }
 }
 
@@ -56,10 +64,32 @@
   }
 }
 
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
+  }
+  
+  .glass-card {
+    @apply backdrop-blur-sm bg-black/30 border border-white/10;
+  }
+  
+  .ict-border {
+    @apply border-l-4 border-[hsl(var(--ict-concept))];
+  }
+}
+
 .data-card {
   @apply rounded-md border border-border bg-card p-4 shadow-sm;
 }
 
 .grid-cols-overview {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.chart-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-4;
+}
+
+.ict-header {
+  @apply text-xl font-bold text-primary mb-4;
 }
