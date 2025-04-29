@@ -4,7 +4,7 @@
 
 export const extractTradeDataFromImage = async (imageFile: File) => {
   // Simulating an API call to an AI service
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     setTimeout(() => {
       try {
         // In reality, this data would come from the AI analysis of the image
